@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kgc.house.mapper.UsersMapper">
+    <select id="selectBySome" parameterType="cn.kgc.house.util.UserCondition" resultType="Users">
+        select * from users
+        <where>
+            <if test="name!=null and name!=''">
+                name like "%"#{name}"%"
+            </if>
+            <if test="telephone!=null and telephone!=''">
+                telephone like "%"#{telephone}"%"
+            </if>
+        </where>
+    </select>
+</mapper>

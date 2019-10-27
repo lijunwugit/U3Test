@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kgc.house.mapper.HouseMapper">
+    <!--查询当前用户发布的所有出租房信息-->
+    <select id="getHouseByUser" resultType="House">
+    SELECT h.id,title,floorage,contact,path,t.`NAME` AS tname,s.`NAME` AS sname,d.`NAME` AS dname,h.ispass,h.price
+ FROM house  h
+ LEFT JOIN TYPE  t ON h.`typeId` =t.`ID`
+ LEFT JOIN street  s ON h.`streetId` =s.`ID`
+ LEFT JOIN `district` d ON s.`districtId`=d.`ID`
+ WHERE h.`userId`=#{userid} and h.isdel=0
+  </select>
+    <select id="getHouseById" parameterType="string" resultType="House">
+    SELECT house.id,userId,typeId AS typeId,title,
+description,price,pubdate,
+floorage,contact,streetId AS streetId
+,path,districtId AS did FROM house LEFT JOIN
+street ON house.`STREETID`=street.`ID`
+     WHERE house.id=#{id}
+  </select>
+    <update id="updateHouse" parameterType="cn.kgc.house.entity.House">
+    update house
+    set TYPEID = #{typeId},
+      TITLE = #{title},
+      DESCRIPTION = #{description},
+      PRICE = #{price},
+      PUBDATE = #{pubdate},
+      FLOORAGE = #{floorage},
+      CONTACT = #{contact},
+      STREETID = #{streetId},
+      path = #{path}
+    where ID = #{id}
+  </update>
+    <!--查询所有未|已审核的出租房-->
+    <select id="getHouseByPassState"  resultType="House" parameterType="int">
+    SELECT price,h.id,title,floorage,contact,path,t.`NAME` AS tname,s.`NAME` AS sname,d.`NAME` AS dname
+ FROM house  h
+ LEFT JOIN TYPE  t ON h.`TYPEID` =t.`ID`
+ LEFT JOIN street  s ON h.`STREETID` =s.`ID`
+ LEFT JOIN `district` d ON s.`DISTRICTID`=d.`ID`
+ WHERE h.isdel=0 AND h.ispass=#{ispass}
+  </select>
+
+    <!--实现浏览出租房   插件分页，无需考虑分页-->
+    <select id="getHouseByBroswer" resultType="House" parameterType="cn.kgc.house.util.HouseCondition">
+        SELECT
+        price,h.id,title,floorage,contact,path,t.`NAME` AS tname,s.`NAME` AS sname,d.`NAME` AS dname
+        FROM house  h
+        LEFT JOIN TYPE  t ON h.`TYPEID` =t.`ID`
+        LEFT JOIN street  s ON h.`STREETID` =s.`ID`
+        LEFT JOIN `district` d ON s.`DISTRICTID`=d.`ID`
+        WHERE h.isdel=0 AND h.ispass=1
+        <if test="title!=null and title!=''">
+            and title like  CONCAT("%",#{title},"%")
+        </if>
+        <if test="did!=null and did!=''">
+            and s.DISTRICTID=#{did}
+        </if>
+        <if test="sid!=null and sid!=''">
+            and s.id=#{sid}
+        </if>
+        <if test="tid!=null and tid!=''">
+            and t.id=#{tid}
+        </if>
+        <if test="startPrice!=null and startPrice!=''">
+            and price >= #{startPrice}
+        </if>
+        <if test="endPrice!=null and endPrice!=''">
+            and price &lt;= #{endPrice}
+        </if>
+    </select>
+</mapper>
